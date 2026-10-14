@@ -1,13 +1,13 @@
 require('dotenv').config();
 const express = require('express');
-const connectDB = require('./config/db');
+const { connectDB } = require('./config/db');
 const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Kết nối cơ sở dữ liệu
-connectDB();
+connectDB().catch(() => {});
 
 // Cấu hình View Engine và Middleware
 app.set('view engine', 'ejs');

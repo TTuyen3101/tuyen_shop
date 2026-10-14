@@ -1,9 +1,14 @@
+const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
+const { connectDB, getLastError } = require('../config/db');
 
 // 1. Hiển thị danh sách đơn hàng
 exports.getAllOrders = async (req, res) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            await connectDB();
+        }
         const orders = await Order.find().sort({ orderDate: -1 }).lean();
         res.render('order', {
             orders,
@@ -11,7 +16,27 @@ exports.getAllOrders = async (req, res) => {
             error: req.query.error || null
         });
     } catch (err) {
-        res.status(500).send('Lỗi khi tải danh sách: ' + err.message);
+        const dbStatus = mongoose.connection.readyState;
+        const uriPreview = process.env.MONGODB_URI 
+            ? process.env.MONGODB_URI.replace(/:([^@]+)@/, ':****@') 
+            : 'CHƯA CẤU HÌNH (undefined)';
+        const lastErr = getLastError();
+        res.status(500).send(`
+            <div style="font-family: Arial, sans-serif; padding: 25px; line-height: 1.6; max-width: 800px; margin: 30px auto; border: 1px solid #ddd; border-radius: 8px;">
+                <h2 style="color: #d9534f; margin-top: 0;">⚠️ Lỗi kết nối cơ sở dữ liệu MongoDB</h2>
+                <p><b>Thông báo lỗi:</b> <code>${err.message}</code></p>
+                ${lastErr ? `<p><b>Nguyên nhân từ MongoDB Driver:</b> <b style="color: red;">${lastErr}</b></p>` : ''}
+                <p><b>Trạng thái kết nối (readyState):</b> ${dbStatus} (0=Mất kết nối, 1=Đã kết nối, 2=Đang kết nối)</p>
+                <p><b>Biến MONGODB_URI Render nhận được:</b> <code style="background: #f4f4f4; padding: 3px 6px; border-radius: 4px;">${uriPreview}</code></p>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
+                <h4 style="margin-bottom: 8px;">Hướng dẫn khắc phục:</h4>
+                <ol style="padding-left: 20px;">
+                    <li><b>Nếu MONGODB_URI là "CHƯA CẤU HÌNH":</b> Vào Render &gt; Web service &gt; tab <b>Environment</b> &gt; Thêm Key là <code>MONGODB_URI</code> và Value là chuỗi kết nối MongoDB Atlas &gt; Bấm <b>Save Changes</b>.</li>
+                    <li><b>Nếu bị lỗi "bad auth" hoặc "Authentication failed":</b> Mật khẩu hoặc username trong chuỗi kết nối bị sai.</li>
+                    <li><b>Nếu bị lỗi "timed out":</b> Vào MongoDB Atlas &gt; <b>Network Access</b> &gt; Thêm IP <code>0.0.0.0/0</code> (Allow Access from Anywhere).</li>
+                </ol>
+            </div>
+        `);
     }
 };
 
