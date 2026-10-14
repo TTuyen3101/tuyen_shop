@@ -1,0 +1,24 @@
+{
+  "name": "tuyen_shop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dotenv": "^18.0.7",
+    "ejs": "^7.0.1",
+    "express": "^5.2.1",
+    "mongoose": "^9.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

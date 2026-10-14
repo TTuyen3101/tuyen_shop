@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .card {
+            width: 100%;
+            max-width: 460px;
+            background: #f7faff;
+            border: 1px solid #d9e6f7;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        h2 {
+            color: #1976d2;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            color: #1976d2;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            box-sizing: border-box;
+            border: 1px solid #c9d8eb;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            background-color: #fff;
+        }
+        input:focus {
+            border-color: #1976d2;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .btn-submit {
+            background-color: #1976d2;
+            color: white;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+        .btn-submit:hover {
+            background-color: #1565c0;
+        }
+        .btn-back {
+            background-color: #e69500;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #cc8400;
+        }
+        .error-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px 14px;
+            border-radius: 4px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            border: 1px solid #ffcdd2;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Create New Order</h2>
+
+        <% if (error) { %>
+            <div class="error-message"><%= error %></div>
+        <% } %>
+
+        <form action="/orders/create" method="POST">
+            <div class="form-group">
+                <label for="customerName">Customer Name</label>
+                <input type="text" id="customerName" name="customerName" placeholder="Enter your name" value="<%= formData && formData.customerName ? formData.customerName : '' %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" name="productName" list="productList" placeholder="Enter product name" value="<%= formData && formData.productName ? formData.productName : '' %>" autocomplete="off" required>
+                <datalist id="productList">
+                    <% if (typeof products !== 'undefined' && products.length > 0) { %>
+                        <% products.forEach(p => { %>
+                            <option value="<%= p.productName %>"><%= p.productName %> - <%= p.unitPrice.toLocaleString() %> VND</option>
+                        <% }) %>
+                    <% } %>
+                </datalist>
+                <% if (typeof products !== 'undefined' && products.length > 0) { %>
+                    <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                        Có sẵn: <%= products.map(p => p.productName).join(', ') %>
+                    </small>
+                <% } %>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" placeholder="Enter quantity" value="<%= formData && formData.quantity ? formData.quantity : '' %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="orderDate">Order Date</label>
+                <input type="date" id="orderDate" name="orderDate" value="<%= formData && formData.orderDate ? formData.orderDate : '' %>" required>
+            </div>
+
+            <button type="submit" class="btn btn-submit">Place Order</button>
+            <a href="/orders" class="btn btn-back">Go Back</a>
+        </form>
+    </div>
+</body>
+</html>

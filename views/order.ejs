@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            color: #1976d2;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 26px;
+        }
+        .alert {
+            padding: 12px 18px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .alert-error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+        th {
+            background-color: #1e88e5;
+            color: white;
+            text-align: left;
+            padding: 12px 14px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fbfd;
+        }
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-update {
+            background-color: #1976d2;
+            margin-right: 6px;
+        }
+        .btn-update:hover {
+            background-color: #1565c0;
+        }
+        .btn-delete {
+            background-color: #e69500;
+            margin-right: 8px;
+        }
+        .btn-delete:hover {
+            background-color: #cc8400;
+        }
+        .btn-danger-confirm {
+            background-color: #d32f2f;
+        }
+        .btn-danger-confirm:hover {
+            background-color: #b71c1c;
+        }
+        .btn-cancel {
+            background-color: #757575;
+        }
+        .btn-cancel:hover {
+            background-color: #616161;
+        }
+        .btn-create {
+            background-color: #1976d2;
+            padding: 10px 24px;
+            font-size: 15px;
+            border-radius: 6px;
+            display: block;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        .btn-create:hover {
+            background-color: #1565c0;
+        }
+        .action-cell {
+            white-space: nowrap;
+        }
+        .price-text {
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Hộp thoại xác nhận xóa chi tiết trên màn hình (Custom Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: #fff;
+            padding: 24px 28px;
+            border-radius: 10px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        .modal-box h3 {
+            margin-top: 0;
+            color: #d32f2f;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .modal-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .order-info-card {
+            background: #f8faff;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            font-size: 14px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .info-total {
+            color: #d32f2f;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+        .modal-actions .btn {
+            padding: 10px 22px;
+            font-size: 14px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Orders</h1>
+
+        <!-- Banner thông báo thành công trên màn hình -->
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success">
+                ✓ <%= success %>
+            </div>
+        <% } %>
+
+        <!-- Banner thông báo lỗi trên màn hình -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error">
+                ⚠ <%= error %>
+            </div>
+        <% } %>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Order Date</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (orders && orders.length > 0) { %>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= order.customerName %></td>
+                            <td><%= order.productName %></td>
+                            <td><%= order.quantity %></td>
+                            <td><%= new Date(order.orderDate).toLocaleDateString('en-US') %></td>
+                            <td class="action-cell">
+                                <a href="/orders/update/<%= order._id %>" class="btn btn-update">Update</a>
+                                <button type="button" class="btn btn-delete btn-open-delete"
+                                    data-id="<%= order._id %>"
+                                    data-customer="<%= order.customerName %>"
+                                    data-product="<%= order.productName %>"
+                                    data-qty="<%= order.quantity %>"
+                                    data-date="<%= new Date(order.orderDate).toLocaleDateString('en-US') %>"
+                                    data-total="<%= order.totalPrice.toLocaleString() %> VND">
+                                    Delete
+                                </button>
+                                <span class="price-text"><%= order.totalPrice.toLocaleString() %> VND</span>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #888;">Chưa có đơn hàng nào</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <a href="/orders/create" class="btn btn-create">Create New Order</a>
+    </div>
+
+    <!-- Hộp thoại xác nhận xóa hiển thị đầy đủ thông tin đơn hàng -->
+    <div id="deleteModal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3>⚠ Xác nhận xóa đơn hàng</h3>
+            <div class="modal-subtitle">Bạn có chắc chắn muốn xóa đơn hàng với thông tin chi tiết dưới đây?</div>
+            
+            <div class="order-info-card">
+                <div class="info-row">
+                    <span class="info-label">Khách hàng:</span>
+                    <span class="info-value" id="delCustomer"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Sản phẩm:</span>
+                    <span class="info-value" id="delProduct"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Số lượng:</span>
+                    <span class="info-value" id="delQty"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Ngày đặt:</span>
+                    <span class="info-value" id="delDate"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tổng tiền:</span>
+                    <span class="info-value info-total" id="delTotal"></span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+                <a id="confirmDeleteLink" href="#" class="btn btn-danger-confirm">Xác nhận xóa</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lắng nghe sự kiện click mở modal từ các nút Delete
+        document.querySelectorAll('.btn-open-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('delCustomer').innerText = this.dataset.customer;
+                document.getElementById('delProduct').innerText = this.dataset.product;
+                document.getElementById('delQty').innerText = this.dataset.qty;
+                document.getElementById('delDate').innerText = this.dataset.date;
+                document.getElementById('delTotal').innerText = this.dataset.total;
+                document.getElementById('confirmDeleteLink').href = '/orders/delete/' + this.dataset.id;
+                document.getElementById('deleteModal').style.display = 'flex';
+            });
+        });
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
